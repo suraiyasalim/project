@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - TurfHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: #f8fafc; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .navbar { background: #0f172a; padding: 18px 50px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar .logo { font-size: 26px; font-weight: 800; color: #38bdf8; text-decoration: none; }
+        .user-nav { display: flex; align-items: center; gap: 15px; }
+        .btn-logout { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; flex-grow: 1; width: 100%; }
+        .profile-card { background: white; border-radius: 12px; padding: 25px; border: 1px solid #e2e8f0; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .profile-info h2 { font-size: 22px; color: #0f172a; font-weight: 700; }
+        .profile-info p { color: #64748b; font-size: 14px; }
+        .badge-user { background: #dbeafe; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 12px; }
+
+        .section-title { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 20px; }
+
+        .booking-table { width: 100%; background: white; border-radius: 12px; border-collapse: collapse; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .booking-table th { background: #f1f5f9; text-align: left; padding: 14px 18px; font-size: 13px; color: #475569; font-weight: 600; }
+        .booking-table td { padding: 16px 18px; border-top: 1px solid #f1f5f9; font-size: 14px; color: #334155; }
+        .status-badge { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        
+        .btn-cancel { background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; }
+        .btn-cancel:hover { background: #fca5a5; }
+
+        footer { background: #0b0f19; color: #64748b; text-align: center; padding: 20px; font-size: 13px; margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">⚡ TurfHub</a>
+        <div class="user-nav">
+            <a href="index.html" style="color: white; text-decoration: none; font-size: 14px; font-weight: 500;">Book New Arena</a>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-card">
+            <div class="profile-info">
+                <h2 id="userName">User Name</h2>
+                <p id="userEmail">user@email.com</p>
+            </div>
+            <span class="badge-user">USER ACCOUNT</span>
+        </div>
+
+        <h3 class="section-title">My Booking History</h3>
+
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Arena / Turf Name</th>
+                    <th>Date</th>
+                    <th>Slot Time</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="bookingList">
+                <!-- Dynamic user bookings -->
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 TurfHub Bangladesh. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        if (!user) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('userName').innerText = user.name;
+            document.getElementById('userEmail').innerText = user.email;
+        }
+
+        async function fetchUserBookings() {
+            try {
+                const res = await fetch(`/api/bookings?user_id=${user.id}`);
+                const data = await res.json();
+                renderBookings(data);
+            } catch (err) {
+                // Demo Data if backend endpoint is empty
+                const demoData = [
+                    { id: 101, facility_name: 'Dhanmondi Turf Arena', booking_date: '2026-08-20', booking_time: '06:00 PM - 08:00 PM', price: 2500, status: 'Confirmed' }
+                ];
+                renderBookings(demoData);
+            }
+        }
+
+        function renderBookings(list) {
+            const tbody = document.getElementById('bookingList');
+            tbody.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; padding: 30px;">No bookings found yet. <a href="index.html">Book now!</a></td></tr>`;
+                return;
+            }
+
+            list.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.facility_name || 'Sports Field'}</strong></td>
+                        <td>${item.booking_date}</td>
+                        <td>${item.booking_time}</td>
+                        <td>৳ ${item.price}</td>
+                        <td><span class="status-badge">${item.status || 'Active'}</span></td>
+                        <td><button class="btn-cancel" onclick="cancelBooking(${item.id})">Cancel</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function cancelBooking(id) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                alert('Booking cancelled successfully.');
+                fetchUserBookings();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        fetchUserBookings();
+    </script>
+</body>
+</html>

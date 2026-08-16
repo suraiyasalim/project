@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurfHub Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: #f8fafc; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navbar Header */
+        .navbar { background: #0f172a; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .navbar .logo { font-size: 24px; font-weight: 800; color: #38bdf8; text-decoration: none; }
+        .admin-tag { background: #38bdf8; color: #0f172a; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 8px; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .btn-logout { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-logout:hover { background: #dc2626; }
+
+        /* Main Container */
+        .admin-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; flex-grow: 1; width: 100%; }
+
+        /* Admin Navigation Tabs */
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .tab-btn { background: #f1f5f9; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; color: #64748b; cursor: pointer; }
+        .tab-btn.active { background: #2563eb; color: white; }
+
+        .admin-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .header-area h2 { font-size: 20px; color: #0f172a; }
+        
+        .btn-bulk-enable { background: #10b981; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-bulk-enable:hover { background: #059669; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 14px 16px; text-align: left; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; color: #475569; font-weight: 600; }
+        
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; }
+        .status-active { background: #dcfce7; color: #15803d; }
+        .status-closed { background: #fee2e2; color: #dc2626; }
+
+        .btn-action { padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; border: none; cursor: pointer; }
+        .btn-enable { background: #dcfce7; color: #15803d; }
+        .btn-enable:hover { background: #bbf7d0; }
+        .btn-disable { background: #fee2e2; color: #dc2626; }
+        .btn-disable:hover { background: #fecaca; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- Admin Header -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">⚡ TurfHub <span class="admin-tag">ADMIN</span></a>
+        <div class="nav-right">
+            <span id="adminProfile" style="font-size: 13px; font-weight: 500;">Admin Profile</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+
+        <!-- Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('arenasTab', this)">🏟️ Manage Arenas</button>
+            <button class="tab-btn" onclick="switchTab('bookingsTab', this)">📋 All Customer Bookings</button>
+        </div>
+
+        <!-- TAB 1: Arenas Status Management -->
+        <div id="arenasTab" class="tab-content active">
+            <div class="admin-card">
+                <div class="header-area">
+                    <h2>Manage Sports Arena Status (Available / Maintenance)</h2>
+                    <button class="btn-bulk-enable" onclick="enableAllArenas()">⚡ Enable All Arenas</button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="arenaTableBody">
+                        <tr><td colspan="5" style="text-align:center;">Loading arenas...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: Customer Bookings Management -->
+        <div id="bookingsTab" class="tab-content">
+            <div class="admin-card">
+                <div class="header-area">
+                    <h2>All Customer Arena Bookings</h2>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Arena</th>
+                            <th>Date & Time</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerBookingsBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Auth Guard (Verify Admin Access)
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+
+        if (!currentUser || currentUser.role !== 'admin') {
+            alert('Admin Access Required! Please login as Admin.');
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('adminProfile').innerText = `👤 ${currentUser.name} (${currentUser.email})`;
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+
+            if (tabId === 'bookingsTab') {
+                loadCustomerBookings();
+            }
+        }
+
+        // 2. Arena Management Logic
+        let localArenas = [
+            { id: 1, name: 'Green Field Football Ground', type: 'Outdoor Field', price: 1500, is_available: 1 },
+            { id: 2, name: 'Smash Indoor Badminton Court', type: 'Indoor Court', price: 800, is_available: 1 },
+            { id: 3, name: 'Pinnacle Cricket Nets', type: 'Outdoor Pitch', price: 1200, is_available: 1 },
+            { id: 4, name: 'Hoops Basketball Arena', type: 'Indoor Court', price: 1000, is_available: 1 },
+            { id: 5, name: 'Grand Slam Tennis Court', type: 'Outdoor Court', price: 1400, is_available: 1 },
+            { id: 6, name: 'SpikeNation Volleyball Arena', type: 'Outdoor Court', price: 900, is_available: 1 },
+            { id: 7, name: 'CueMasters Pool & Snooker Lounge', type: 'Indoor Lounge', price: 700, is_available: 1 },
+            { id: 8, name: 'TurfPro Hockey Arena', type: 'Outdoor Turf', price: 1300, is_available: 1 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', loadArenas);
+
+        async function loadArenas() {
+            try {
+                const res = await fetch('http://localhost:5000/api/facilities');
+                if (!res.ok) throw new Error("Backend connection issue");
+                const facilities = await res.json();
+                if (Array.isArray(facilities) && facilities.length > 0) {
+                    localArenas = facilities;
+                }
+            } catch (err) {
+                console.warn("Backend offline. Using dynamic local fallback data.");
+            }
+            renderTable(localArenas);
+        }
+
+        function renderTable(data) {
+            let html = '';
+            data.forEach(f => {
+                const isAvail = f.is_available === 1 || f.is_available === true || f.is_available === '1';
+                html += `
+                    <tr>
+                        <td style="font-weight:600;">${f.name}</td>
+                        <td>${f.type || 'Sports Arena'}</td>
+                        <td style="font-weight:600;">৳ ${f.price}</td>
+                        <td>
+                            <span class="status-badge ${isAvail ? 'status-active' : 'status-closed'}">
+                                ${isAvail ? 'Available' : 'Closed / Maintenance'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-action ${isAvail ? 'btn-disable' : 'btn-enable'}" onclick="toggleStatus(${f.id}, ${isAvail ? 0 : 1})">
+                                ${isAvail ? 'Disable' : 'Enable'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('arenaTableBody').innerHTML = html;
+        }
+
+        async function toggleStatus(id, newStatus) {
+            const item = localArenas.find(a => a.id === id);
+            if (item) item.is_available = newStatus;
+            renderTable(localArenas);
+
+            try {
+                await fetch(`http://localhost:5000/api/facilities/${id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_available: newStatus })
+                });
+            } catch (e) {}
+        }
+
+        async function enableAllArenas() {
+            localArenas.forEach(a => a.is_available = 1);
+            renderTable(localArenas);
+
+            try {
+                await fetch('http://localhost:5000/api/facilities/enable-all', { method: 'PATCH' });
+            } catch (e) {}
+        }
+
+        // 3. Customer Bookings Loader
+        async function loadCustomerBookings() {
+            const tbody = document.getElementById('customerBookingsBody');
+            try {
+                const res = await fetch('http://localhost:5000/api/admin/bookings');
+                const list = await res.json();
+                renderBookings(list);
+            } catch (err) {
+                // Fallback Mock Data
+                const mockBookings = [
+                    { userName: 'Sakib Hasan', arena: 'Green Field Football Ground', date: '2026-08-20 (06:00 PM)', price: 1500, status: 'Confirmed' },
+                    { userName: 'Tamim Iqbal', arena: 'Smash Indoor Badminton Court', date: '2026-08-21 (08:00 PM)', price: 800, status: 'Confirmed' }
+                ];
+                renderBookings(mockBookings);
+            }
+        }
+
+        function renderBookings(list) {
+            const tbody = document.getElementById('customerBookingsBody');
+            tbody.innerHTML = '';
+            list.forEach(b => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:600;">${b.userName || 'Customer'}</td>
+                        <td>${b.arena || b.facility_name}</td>
+                        <td>${b.date || b.booking_date}</td>
+                        <td style="font-weight:600;">৳ ${b.price}</td>
+                        <td><span class="status-badge status-active">${b.status || 'Active'}</span></td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

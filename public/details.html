@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena Details - TurfHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: #f8fafc; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navbar */
+        .navbar { background: #0f172a; padding: 18px 50px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .navbar .logo { font-size: 26px; font-weight: 800; color: #38bdf8; text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 20px; }
+        .nav-links a { color: #f1f5f9; text-decoration: none; font-weight: 500; font-size: 14px; }
+        .nav-links a:hover { color: #38bdf8; }
+        .nav-btn { background: #2563eb; color: white; border: none; padding: 9px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-logout { background: #ef4444; margin-left: 10px; }
+        .user-greeting { font-size: 14px; color: #38bdf8; font-weight: 600; }
+
+        /* Main Details Layout */
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; flex-grow: 1; width: 100%; display: grid; grid-template-columns: 1fr 420px; gap: 30px; }
+        
+        /* Left Column: Details */
+        .arena-info-card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .arena-hero-img { width: 100%; height: 350px; object-fit: cover; background: #e2e8f0; }
+        .info-content { padding: 30px; }
+        .arena-type-tag { display: inline-block; background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+        .arena-title { font-size: 28px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+        .arena-location { background: #f1f5f9; color: #334155; font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .arena-price-tag { font-size: 24px; font-weight: 700; color: #059669; margin-bottom: 20px; }
+        .arena-price-tag span { font-size: 14px; color: #64748b; font-weight: 400; }
+        .arena-desc { color: #475569; font-size: 15px; line-height: 1.7; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+
+        /* Right Column: Reservation Box */
+        .booking-card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); height: fit-content; }
+        .booking-card h3 { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
+        .form-control:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        /* Payment Buttons (Without Venue) */
+        .payment-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .pay-option { background: white; border: 1px solid #cbd5e1; padding: 10px 5px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .pay-option:hover { border-color: #2563eb; color: #2563eb; }
+        .pay-option.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; box-shadow: 0 0 0 2px #2563eb; }
+
+        .btn-confirm { width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+        .btn-confirm:hover { background: #1d4ed8; }
+
+        footer { background: #0b0f19; color: #64748b; text-align: center; padding: 25px; font-size: 13px; margin-top: 60px; }
+
+        @media (max-width: 850px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">⚡ TurfHub</a>
+        <div class="nav-links" id="navAuthSection"></div>
+    </nav>
+
+    <div class="container">
+        <!-- Left Column: Arena Details -->
+        <div class="arena-info-card">
+            <img id="arenaImage" class="arena-hero-img" src="" alt="Arena Image">
+            <div class="info-content">
+                <span class="arena-type-tag" id="arenaType">Outdoor Court</span>
+                <h1 class="arena-title" id="arenaTitle">Loading...</h1>
+                <div class="arena-location" id="arenaLocation">📍 Loading location...</div>
+                <div class="arena-price-tag" id="arenaPrice">৳ 0 <span>/ 2 Hours</span></div>
+                <p class="arena-desc" id="arenaDesc">Loading description...</p>
+            </div>
+        </div>
+
+        <!-- Right Column: Reserve Form -->
+        <div class="booking-card">
+            <h3>Reserve Your Slot</h3>
+            <form id="bookingForm" onsubmit="handleBooking(event)">
+                <div class="form-group">
+                    <label class="form-label">Select Booking Date</label>
+                    <input type="date" id="bookingDate" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Time Slot</label>
+                    <select id="timeSlot" class="form-control" required>
+                        <option value="" disabled selected>Select a slot</option>
+                        <option value="08:00 AM - 10:00 AM">08:00 AM - 10:00 AM</option>
+                        <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                        <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                        <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                        <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                        <option value="08:00 PM - 10:00 PM">08:00 PM - 10:00 PM</option>
+                    </select>
+                </div>
+
+                <!-- Payment Method (Venue Option Removed) -->
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <div class="payment-grid" id="paymentOptions">
+                        <button type="button" class="pay-option active" data-method="bKash" onclick="selectPayment(this)">bKash</button>
+                        <button type="button" class="pay-option" data-method="Nagad" onclick="selectPayment(this)">Nagad</button>
+                        <button type="button" class="pay-option" data-method="Rocket" onclick="selectPayment(this)">Rocket</button>
+                        <button type="button" class="pay-option" data-method="Bank" onclick="selectPayment(this)">Bank</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-confirm">Confirm & Pay</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 TurfHub Bangladesh. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        let currentArena = null;
+        let selectedPaymentMethod = 'bKash';
+
+        // Set minimum date to today
+        document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+
+        function checkAuthNavbar() {
+            const authSection = document.getElementById('navAuthSection');
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+
+            if (currentUser) {
+                let adminLink = currentUser.role === 'admin' ? `<a href="admin.html" style="color: #38bdf8; font-weight:700;">⚙️ Admin Panel</a>` : '';
+                authSection.innerHTML = `
+                    <a href="index.html">Home</a>
+                    <a href="my-bookings.html">My Bookings</a>
+                    ${adminLink}
+                    <span class="user-greeting">👤 ${currentUser.name}</span>
+                    <button class="nav-btn btn-logout" onclick="logout()">Logout</button>
+                `;
+            } else {
+                authSection.innerHTML = `
+                    <a href="index.html">Home</a>
+                    <a href="login.html" class="nav-btn">Login / Register</a>
+                `;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        function selectPayment(element) {
+            document.querySelectorAll('.pay-option').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            selectedPaymentMethod = element.getAttribute('data-method');
+        }
+
+        function getSportImage(item) {
+            const text = ((item.name || '') + ' ' + (item.type || '') + ' ' + (item.description || '')).toLowerCase();
+
+            if (text.includes('snooker') || text.includes('pool') || text.includes('cue')) {
+                return 'https://images.unsplash.com/photo-1534158914592-062992fbe900?auto=format&fit=crop&w=800&q=80';
+            } 
+            if (text.includes('tennis')) {
+                return 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=800&q=80';
+            }
+            if (text.includes('volleyball') || text.includes('spike')) {
+                return 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=800&q=80';
+            }
+            if (text.includes('basketball') || text.includes('hoops')) {
+                return 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=800&q=80';
+            } 
+            if (text.includes('hockey')) {
+                return 'https://images.unsplash.com/photo-1580748141549-71748dbe0bdc?auto=format&fit=crop&w=800&q=80';
+            } 
+            if (text.includes('badminton')) {
+                return 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80';
+            } 
+            if (text.includes('cricket')) {
+                return 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=800&q=80';
+            } 
+            return 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80';
+        }
+
+        function getSmartLocation(item) {
+            const dbLoc = item.location || item.address || item.venue || item.area;
+            if (dbLoc && dbLoc.trim() !== '' && dbLoc.trim() !== 'Dhaka, Bangladesh') {
+                return dbLoc;
+            }
+
+            const name = ((item.name || '') + ' ' + (item.type || '')).toLowerCase();
+            if (name.includes('hoops') || name.includes('basketball')) return 'Gulshan-2, Dhaka';
+            if (name.includes('tennis') || name.includes('slam')) return 'Dhanmondi 32, Dhaka';
+            if (name.includes('volleyball') || name.includes('spike')) return 'Banani Road 11, Dhaka';
+            if (name.includes('cuemasters') || name.includes('snooker') || name.includes('pool')) return 'Uttara Sector 7, Dhaka';
+            if (name.includes('hockey')) return 'Mirpur-10, Dhaka';
+            if (name.includes('badminton')) return 'Bashundhara R/A, Dhaka';
+            if (name.includes('cricket')) return 'Mohakhali, Dhaka';
+
+            return 'Gulshan, Dhaka';
+        }
+
+        async function loadArenaDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const arenaId = urlParams.get('id');
+
+            if (!arenaId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:5000/api/facilities/${arenaId}`);
+                if (!res.ok) throw new Error("API error");
+                currentArena = await res.json();
+            } catch (err) {
+                // Mock Fallback
+                const fallbackList = [
+                    { id: 1, name: 'Hoops Basketball Arena', type: 'Indoor Court', price: 1000, location: 'Gulshan-2, Dhaka', description: 'Pro-grade wooden basketball court with electronic scoreboard.' },
+                    { id: 2, name: 'Grand Slam Tennis Court', type: 'Outdoor Court', price: 1400, location: 'Dhanmondi 32, Dhaka', description: 'Synthetic acrylic tennis court with night lighting setup.' },
+                    { id: 3, name: 'SpikeNation Volleyball Arena', type: 'Outdoor Court', price: 900, location: 'Banani Road 11, Dhaka', description: 'Sand-filled outdoor volleyball court with professional netting.' },
+                    { id: 4, name: 'CueMasters Pool & Snooker Lounge', type: 'Indoor Lounge', price: 700, location: 'Uttara Sector 7, Dhaka', description: 'Air-conditioned lounge with 12ft snooker tables.' },
+                    { id: 5, name: 'TurfPro Hockey Arena', type: 'Outdoor Turf', price: 1300, location: 'Mirpur-10, Dhaka', description: 'AstroTurf surface suitable for standard field hockey practice.' }
+                ];
+                currentArena = fallbackList.find(item => item.id == arenaId) || fallbackList[0];
+            }
+
+            // Populate page data
+            document.getElementById('arenaTitle').innerText = currentArena.name;
+            document.getElementById('arenaType').innerText = currentArena.type || 'SPORTS ARENA';
+            document.getElementById('arenaLocation').innerText = `📍 ${getSmartLocation(currentArena)}`;
+            document.getElementById('arenaPrice').innerHTML = `৳ ${currentArena.price} <span>/ ${currentArena.duration || '2 Hours'}</span>`;
+            document.getElementById('arenaDesc').innerText = currentArena.description || 'No description available.';
+            document.getElementById('arenaImage').src = getSportImage(currentArena);
+        }
+
+        async function handleBooking(event) {
+            event.preventDefault();
+
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (!currentUser) {
+                alert('Please login first to confirm your booking!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const date = document.getElementById('bookingDate').value;
+            const slot = document.getElementById('timeSlot').value;
+
+            const bookingData = {
+                userId: currentUser.id || currentUser.email,
+                userName: currentUser.name,
+                arenaId: currentArena.id,
+                arenaName: currentArena.name,
+                date: date,
+                slot: slot,
+                price: currentArena.price,
+                paymentMethod: selectedPaymentMethod,
+                status: 'Confirmed'
+            };
+
+            try {
+                const res = await fetch('http://localhost:5000/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookingData)
+                });
+
+                if (res.ok) {
+                    alert(`Booking Successful via ${selectedPaymentMethod}!`);
+                    window.location.href = 'my-bookings.html';
+                } else {
+                    throw new Error("Server response not ok");
+                }
+            } catch (err) {
+                // LocalStorage Fallback for demo
+                let myBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+                myBookings.push({ ...bookingData, id: Date.now() });
+                localStorage.setItem('userBookings', JSON.stringify(myBookings));
+
+                alert(`Booking Successful via ${selectedPaymentMethod}! (Saved Locally)`);
+                window.location.href = 'my-bookings.html';
+            }
+        }
+
+        checkAuthNavbar();
+        loadArenaDetails();
+    </script>
+</body>
+</html>

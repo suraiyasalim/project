@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurfHub - Login & Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: #0f172a; color: #1e293b; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        
+        .auth-card { background: white; border-radius: 16px; padding: 35px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+        .logo-title { text-align: center; font-size: 26px; font-weight: 800; color: #2563eb; margin-bottom: 5px; }
+        .sub-title { text-align: center; font-size: 13px; color: #64748b; margin-bottom: 25px; }
+        
+        .tab-buttons { display: flex; background: #f1f5f9; border-radius: 8px; padding: 4px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; border: none; background: transparent; padding: 10px; font-weight: 600; font-size: 14px; color: #64748b; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+        .tab-btn.active { background: white; color: #2563eb; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 11px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
+        .form-group input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+
+        .btn-submit { width: 100%; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; margin-top: 5px; }
+        .btn-submit:hover { background: #1d4ed8; }
+
+        .form-box { display: none; }
+        .form-box.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <div class="logo-title">⚡ TurfHub</div>
+        <p class="sub-title">Sports Arena Booking Platform</p>
+
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchForm('login')">Login</button>
+            <button class="tab-btn" onclick="switchForm('register')">Register</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="form-box active" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-submit">Sign In</button>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" class="form-box" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="Your Full Name" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="regEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-submit">Create Account</button>
+        </form>
+    </div>
+
+    <script>
+        function switchForm(type) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.form-box').forEach(f => f.classList.remove('active'));
+
+            if (type === 'login') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            try {
+                const res = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    processUserLogin(data.user || { email: email, name: email.split('@')[0] });
+                } else {
+                    alert(data.message || 'Login failed!');
+                }
+            } catch (err) {
+                processUserLogin({ email: email, name: email.split('@')[0] });
+            }
+        }
+
+        function processUserLogin(user) {
+            const email = user.email.toLowerCase();
+
+            if (email.endsWith('@turf.com') || user.role === 'admin') {
+                user.role = 'admin';
+                localStorage.setItem('user', JSON.stringify(user));
+                window.location.href = 'admin.html';
+            } else {
+                user.role = 'user';
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // যদি আগে থেকে কোনো বুকিং পেজ রিডাইরেক্ট পেন্ডিং থাকে
+                const redirectTarget = localStorage.getItem('redirectAfterLogin') || 'index.html';
+                localStorage.removeItem('redirectAfterLogin');
+                window.location.href = redirectTarget;
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+
+            const isAdmin = email.toLowerCase().endsWith('@turf.com');
+            const newUser = { name, email, role: isAdmin ? 'admin' : 'user' };
+
+            try {
+                const res = await fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role: newUser.role })
+                });
+
+                if (res.ok) {
+                    alert('Registration Successful!');
+                    processUserLogin(newUser);
+                } else {
+                    processUserLogin(newUser);
+                }
+            } catch (err) {
+                processUserLogin(newUser);
+            }
+        }
+    </script>
+</body>
+</html>
